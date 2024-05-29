@@ -1,0 +1,52 @@
+.imgStyle {
+    height: 300px;
+    width: 300px;
+    margin: 10px;
+
+}
+
+.loadAnime {
+    animation: loading 4s ease infinite;
+}
+
+@keyframes loading {
+    0%,100% {
+        opacity: 0;
+      }
+    50% {
+       opacity: 1;
+    }
+}
+
+.dalleApi {
+    width: 300px;
+    padding: 10px;
+}
+
+.dalleKeyword {
+    width: 500px;
+    padding: 10px;
+}
+
+.dalleText {
+    border: none;
+    border-bottom: 2px solid #4CAF50;
+    background-color: #f8f8f8;
+    box-shadow:0 8px 16px #00000024,0 0 2px #0000001f;
+    font-size: 16px;
+    margin: 10px;
+}
+
+.dalleText:focus {
+    outline: none;
+    border-bottom: 2px solid #333;
+}
+
+.createButton{
+    width: 86px;
+    height: 32px;
+    padding: 15px;
+    color: #fff;
+    border-radius: 4px;
+    background:radial-gradient(109.81% 107.82% at 100.1% 90.19%,#0f6cbd 33.63%,#2d87c3 70.31%,#8dddd8 100%);
+}
