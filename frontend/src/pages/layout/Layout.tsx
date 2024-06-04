@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
+
 import { Link, Outlet } from 'react-router-dom'
 import { Dialog, Stack, TextField } from '@fluentui/react'
 import { CopyRegular } from '@fluentui/react-icons'
@@ -75,7 +76,7 @@ const Layout = () => {
             <Link to="/" className={styles.headerTitleContainer}>
               <h1 className={styles.headerTitle}>chat</h1>
             </Link>
-            <Link to="/Dalle3" className={styles.headerTitleContainer}>
+            <Link to="/dalle3" className={styles.headerTitleContainer}>
               <h1 className={styles.headerTitle}>Dalle3</h1>
             </Link>
           </Stack>

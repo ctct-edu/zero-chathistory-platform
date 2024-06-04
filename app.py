@@ -49,6 +49,9 @@ UI_CHAT_DESCRIPTION = (
 )
 UI_FAVICON = os.environ.get("UI_FAVICON") or "/favicon.ico"
 UI_SHOW_SHARE_BUTTON = os.environ.get("UI_SHOW_SHARE_BUTTON", "true").lower() == "true"
+UI_DALLE_APIKEY= os.environ.get("UI_DALLE_APIKEY")
+UI_DALLE_URL= os.environ.get("UI_DALLE_URL")
+
 
 
 def create_app():
@@ -265,6 +268,8 @@ frontend_settings = {
         "chat_title": UI_CHAT_TITLE,
         "chat_description": UI_CHAT_DESCRIPTION,
         "show_share_button": UI_SHOW_SHARE_BUTTON,
+        "dalle_apikey" : UI_DALLE_APIKEY,
+        "dalle_url" : UI_DALLE_URL,
     },
     "sanitize_answer": SANITIZE_ANSWER,
 }

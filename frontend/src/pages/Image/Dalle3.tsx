@@ -4,14 +4,74 @@ import { CommandBarButton, IconButton, Dialog, DialogType, Stack } from '@fluent
 import { SquareRegular, ShieldLockRegular, ErrorCircleRegular } from '@fluentui/react-icons'
 
 import ctctlogo from "../../assets/logo.png";
+import { AppStateContext } from '../../state/AppProvider'
 
 const Dalle3 = () => {
   const [showAuthMessage, setShowAuthMessage] = useState<boolean | undefined>()
-  const [val, setVal] = useState<string>("")
-  const onChangedKey = (event:React.ChangeEvent<HTMLInputElement>) => setVal(event.target.value)
   const [keyword, setKeyWord] = useState<string>("")
   const onChangedKeyword = (event:React.ChangeEvent<HTMLInputElement>) => setKeyWord(event.target.value)
+  const appStateContext = useContext(AppStateContext)
+  const ui = appStateContext?.state.frontendSettings?.ui
+
+  const [count, setCount] = useState(0);
+  const [apiKey, setApiKey] = useState<string>(ui?.dalle_apikey ?? "");
+  const [images, setImages] = useState<string[]>([]);
+  const [imgSrc, setImgSrc] = useState('/static/loading.png');
   
+
+  const createImage = async (event:React.FormEvent<HTMLFormElement>) => {
+    // Loading用画像追加
+    try {
+        // API実行
+        if (keyword.trim() === "") {
+          return true;
+        }
+
+        // formのイベント解除（送信されないように）
+        event.preventDefault();
+
+        setImages([...images, '/static/loading.png']);
+
+        const response = await fetch(
+          ui?.dalle_url ?? "",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "API-key": apiKey
+                },
+                body: JSON.stringify({
+                    "prompt": keyword,
+                    "n": 1,
+                    "size": "1024x1024",
+                    "style": "vivid",
+                    "quality": "standard"
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+
+        // 成功時の処理
+        const newImages = [...images];
+        newImages[count] = data.data[0]["url"];
+        setImages(newImages);
+        setCount(count + 1);
+
+        return false;
+
+    } catch (error) {
+        // error時の処理は後回し
+        console.error(error);
+    }
+    return false;
+
+};
+
 
   return (
     <div className={styles.container} role="main">
@@ -49,14 +109,17 @@ const Dalle3 = () => {
               <img src={ctctlogo} className={styles.chatIcon} aria-hidden="true" />
               <h1 className={styles.chatEmptyStateTitle}>Create Image</h1>
               <h2 className={styles.chatEmptyStateSubtitle}></h2>
-              <form action="#" method="POST">
-                <input type="text" id="apikey" className="dalleApi dalleText" name="apikey" placeholder="API-keyを入力してください"
-                    value={val} onChange={onChangedKey} required /><br />
+              <form action="#" method="POST" onSubmit={createImage}>
                 <input id="prompt" type="text" className="dalleKeyword dalleText" name="prompt" placeholder="作成するイメージを説明します。例: &quot;シアトルの地平線の水彩画&quot;" 
                     value={keyword} onChange={onChangedKeyword} required />
                 <button id="createImg" type="submit" value="画像生成" className="createButton" >画像生成</button>
               </form>
-	            <div id="dispImg"></div>
+	            <div id="dispImg">
+              {images.map((images, index) => (
+                <img key={index} src={images} className={images === '/static/loading.png' ? 'imgStyle loadAnime' : 'imgStyle'} />
+            ))}
+              </div>
+
 
             </Stack>
             

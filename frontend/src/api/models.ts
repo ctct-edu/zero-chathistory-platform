@@ -109,6 +109,8 @@ export type UI = {
   logo?: string
   chat_logo?: string
   show_share_button?: boolean
+  dalle_apikey:string
+  dalle_url:string
 }
 
 export type FrontendSettings = {

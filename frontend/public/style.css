@@ -43,9 +43,8 @@
 }
 
 .createButton{
-    width: 86px;
-    height: 32px;
-    padding: 15px;
+    width: 100px;
+    padding: 10px;
     color: #fff;
     border-radius: 4px;
     background:radial-gradient(109.81% 107.82% at 100.1% 90.19%,#0f6cbd 33.63%,#2d87c3 70.31%,#8dddd8 100%);
