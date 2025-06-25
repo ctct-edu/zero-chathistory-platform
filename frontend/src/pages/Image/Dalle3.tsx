@@ -44,8 +44,8 @@ const Dalle3 = () => {
                     "prompt": keyword,
                     "n": 1,
                     "size": "1024x1024",
-                    "style": "vivid",
-                    "quality": "standard"
+                    "output_format": "png",
+                    "quality": "medium"
                 })
             }
         );
@@ -56,9 +56,13 @@ const Dalle3 = () => {
 
         const data = await response.json();
 
+        // Base64データをData URLに変換
+        const base64Data = data.data[0]["b64_json"];
+        const imageDataUrl = `data:image/${data.output_format || 'png'};base64,${base64Data}`;        
+
         // 成功時の処理
         const newImages = [...images];
-        newImages[count] = data.data[0]["url"];
+        newImages[count] = imageDataUrl;
         setImages(newImages);
         setCount(count + 1);
 
@@ -67,6 +71,11 @@ const Dalle3 = () => {
     } catch (error) {
         // error時の処理は後回し
         console.error(error);
+
+        // エラー時はローディング画像を削除
+        const newImages = [...images];
+        newImages.pop(); // 最後のローディング画像を削除
+        setImages(newImages);
     }
     return false;
 
@@ -116,7 +125,7 @@ const Dalle3 = () => {
               </form>
 	            <div id="dispImg">
               {images.map((images, index) => (
-                <img key={index} src={images} className={images === '/static/loading.png' ? 'imgStyle loadAnime' : 'imgStyle'} />
+                <img key={index} src={images} className={images === '/static/loading.png' ? 'imgStyle loadAnime' : 'imgStyle'} alt={`Generated image ${index + 1}`} />
             ))}
               </div>
 

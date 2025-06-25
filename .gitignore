@@ -1,4 +1,5 @@
 .venv
+.venv311
 frontend/node_modules
 .env
 # static
