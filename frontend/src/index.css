@@ -27,3 +27,36 @@ html {
 #root {
   height: 100%;
 }
+
+/* 画像アイコン用のスタイル */
+.clearChatBroom img,
+.clearChatBroomNoCosmos img {
+  transition: all 0.2s ease;
+  object-fit: contain;
+}
+
+/* ホバー効果 */
+.clearChatBroom:hover img,
+.clearChatBroomNoCosmos:hover img {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+/* 無効化時のスタイル */
+.clearChatBroom:disabled img,
+.clearChatBroomNoCosmos:disabled img {
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
+
+/* 画像アイコンのサイズ調整 */
+.imageIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* 暗い背景の場合の画像色調整（白色化） */
+.darkBackground img {
+  filter: brightness(0) invert(1);
+}

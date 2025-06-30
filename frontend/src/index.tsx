@@ -12,7 +12,8 @@ import { AppStateProvider } from './state/AppProvider'
 
 import './index.css'
 
-initializeIcons()
+initializeIcons(undefined, { disableWarnings: true })
+
 
 export default function App() {
   return (
@@ -22,8 +23,6 @@ export default function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Chat />} />
             <Route path="/image-generator" element={<ImageGenerator />} />
-            {/* 後方互換性のため古いルートも維持 */}
-            {/* <Route path="/dalle3" element={<ImageGenerator />} /> */}
             <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>

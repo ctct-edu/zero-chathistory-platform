@@ -828,16 +828,13 @@ const Chat = () => {
                 <CommandBarButton
                   role="button"
                   styles={{
-                    icon: {
-                      color: '#FFFFFF'
-                    },
-                    iconDisabled: {
-                      color: '#BDBDBD !important'
-                    },
                     root: {
                       color: '#FFFFFF',
                       background:
-                        'radial-gradient(109.81% 107.82% at 100.1% 90.19%, #0F6CBD 33.63%, #2D87C3 70.31%, #8DDDD8 100%)'
+                        'radial-gradient(109.81% 107.82% at 100.1% 90.19%, #0F6CBD 33.63%, #2D87C3 70.31%, #8DDDD8 100%)',
+                      minWidth: '40px',
+                      height: '40px',
+                      padding: '0'
                     },
                     rootDisabled: {
                       background: '#F0F0F0'
@@ -848,7 +845,17 @@ const Chat = () => {
                       ? styles.clearChatBroom
                       : styles.clearChatBroomNoCosmos
                   }
-                  iconProps={{ iconName: 'Broom' }}
+                  onRenderIcon={() => (
+                    <img 
+                      src="/static/clear-icon.png" // public/clear-icon.png に配置
+                      alt="クリア"
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        filter: 'brightness(0) invert(1)' // 白色にする場合
+                      }}
+                    />
+                  )}
                   onClick={
                     appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured
                       ? clearChat
