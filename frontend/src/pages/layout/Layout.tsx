@@ -74,10 +74,10 @@ const Layout = () => {
           <Stack horizontal verticalAlign="center">
             <img src={ctctlogo} className={styles.headerIcon} aria-hidden="true" alt="" />
             <Link to="/" className={styles.headerTitleContainer}>
-              <h1 className={styles.headerTitle}>chat</h1>
+              <h1 className={styles.headerTitle}>Chat</h1>
             </Link>
-            <Link to="/dalle3" className={styles.headerTitleContainer}>
-              <h1 className={styles.headerTitle}>Dalle3</h1>
+            <Link to="/image-generator" className={styles.headerTitleContainer}>
+              <h1 className={styles.headerTitle}>Image Generator</h1>
             </Link>
           </Stack>
           <Stack horizontal tokens={{ childrenGap: 4 }} className={styles.shareButtonContainer}>
@@ -131,6 +131,7 @@ const Layout = () => {
       </Dialog>
     </div>
   )
+
 }
 
 export default Layout

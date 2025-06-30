@@ -1,8 +1,11 @@
+/* 画像表示スタイル */
 .imgStyle {
     height: 300px;
     width: 300px;
     margin: 10px;
-
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
 }
 
 .loadAnime {
@@ -10,42 +13,66 @@
 }
 
 @keyframes loading {
-    0%,100% {
+    0%, 100% {
         opacity: 0;
-      }
+    }
     50% {
-       opacity: 1;
+        opacity: 1;
     }
 }
 
-.dalleApi {
+/* 画像生成フォーム関連のスタイル（汎用化） */
+.imageGenApi {
     width: 300px;
     padding: 10px;
 }
 
-.dalleKeyword {
+.imageGenKeyword {
     width: 500px;
     padding: 10px;
 }
 
-.dalleText {
+.imageGenText {
     border: none;
     border-bottom: 2px solid #4CAF50;
     background-color: #f8f8f8;
-    box-shadow:0 8px 16px #00000024,0 0 2px #0000001f;
+    box-shadow: 0 8px 16px #00000024, 0 0 2px #0000001f;
     font-size: 16px;
     margin: 10px;
+    transition: border-bottom-color 0.3s ease;
 }
 
-.dalleText:focus {
+.imageGenText:focus {
     outline: none;
     border-bottom: 2px solid #333;
 }
 
-.createButton{
-    width: 100px;
+.imageGenText:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.createButton {
+    width: 120px;
     padding: 10px;
     color: #fff;
+    border: none;
     border-radius: 4px;
-    background:radial-gradient(109.81% 107.82% at 100.1% 90.19%,#0f6cbd 33.63%,#2d87c3 70.31%,#8dddd8 100%);
+    background: radial-gradient(109.81% 107.82% at 100.1% 90.19%, #0f6cbd 33.63%, #2d87c3 70.31%, #8dddd8 100%);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.createButton:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 108, 189, 0.3);
+}
+
+.createButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }

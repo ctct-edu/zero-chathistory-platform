@@ -7,7 +7,7 @@ import { initializeIcons } from '@fluentui/react'
 import Chat from './pages/chat/Chat'
 import Layout from './pages/layout/Layout'
 import NoPage from './pages/NoPage'
-import Dalle3 from './pages/Image/Dalle3'
+import ImageGenerator from './pages/Image/ImageGenerator'
 import { AppStateProvider } from './state/AppProvider'
 
 import './index.css'
@@ -21,7 +21,9 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Chat />} />
-            <Route path="/dalle3" element={<Dalle3 />} />
+            <Route path="/image-generator" element={<ImageGenerator />} />
+            {/* 後方互換性のため古いルートも維持 */}
+            {/* <Route path="/dalle3" element={<ImageGenerator />} /> */}
             <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>

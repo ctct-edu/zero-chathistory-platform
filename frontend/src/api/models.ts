@@ -102,6 +102,7 @@ export type ErrorMessage = {
   subtitle: string
 }
 
+// 画像生成AI設定（汎用化）
 export type UI = {
   title: string
   chat_title: string
@@ -109,8 +110,11 @@ export type UI = {
   logo?: string
   chat_logo?: string
   show_share_button?: boolean
-  dalle_apikey:string
-  dalle_url:string
+  image_gen_apikey: string   // dalle_apikey から変更
+  image_gen_url: string      // dalle_url から変更
+  // // 後方互換性のため古いプロパティも定義（オプショナル）
+  // dalle_apikey?: string
+  // dalle_url?: string
 }
 
 export type FrontendSettings = {

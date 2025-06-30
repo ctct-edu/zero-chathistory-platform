@@ -250,6 +250,10 @@ PROMPTFLOW_RESPONSE_FIELD_NAME = os.environ.get(
 PROMPTFLOW_CITATIONS_FIELD_NAME = os.environ.get(
     "PROMPTFLOW_CITATIONS_FIELD_NAME", "documents"
 )
+# 画像生成AI設定（汎用化）
+UI_IMAGE_GEN_APIKEY = os.environ.get("UI_IMAGE_GEN_APIKEY")
+UI_IMAGE_GEN_URL = os.environ.get("UI_IMAGE_GEN_URL")
+
 # Frontend Settings via Environment Variables
 AUTH_ENABLED = os.environ.get("AUTH_ENABLED", "true").lower() == "true"
 CHAT_HISTORY_ENABLED = (
@@ -258,6 +262,7 @@ CHAT_HISTORY_ENABLED = (
     and AZURE_COSMOSDB_CONVERSATIONS_CONTAINER
 )
 SANITIZE_ANSWER = os.environ.get("SANITIZE_ANSWER", "false").lower() == "true"
+
 frontend_settings = {
     "auth_enabled": AUTH_ENABLED,
     "feedback_enabled": AZURE_COSMOSDB_ENABLE_FEEDBACK and CHAT_HISTORY_ENABLED,
@@ -268,11 +273,12 @@ frontend_settings = {
         "chat_title": UI_CHAT_TITLE,
         "chat_description": UI_CHAT_DESCRIPTION,
         "show_share_button": UI_SHOW_SHARE_BUTTON,
-        "dalle_apikey" : UI_DALLE_APIKEY,
-        "dalle_url" : UI_DALLE_URL,
+        "image_gen_apikey": UI_IMAGE_GEN_APIKEY,
+        "image_gen_url": UI_IMAGE_GEN_URL,
     },
     "sanitize_answer": SANITIZE_ANSWER,
 }
+
 # Enable Microsoft Defender for Cloud Integration
 MS_DEFENDER_ENABLED = os.environ.get("MS_DEFENDER_ENABLED", "true").lower() == "true"
 
@@ -366,7 +372,7 @@ def init_openai_client(use_data=SHOULD_USE_DATA):
 
         return azure_openai_client
     except Exception as e:
-        logging.exception("Exception in Azure OpenAI initialization", e)
+        logging.exception("Exception in Azure OpenAI initialization: %s", e)
         azure_openai_client = None
         raise e
 
