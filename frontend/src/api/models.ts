@@ -102,6 +102,12 @@ export type ErrorMessage = {
   subtitle: string
 }
 
+export type ImageProvider = {
+  url: string
+  api_key: string
+  name: string
+}
+
 // 画像生成AI設定（汎用化）
 export type UI = {
   title: string
@@ -110,11 +116,10 @@ export type UI = {
   logo?: string
   chat_logo?: string
   show_share_button?: boolean
-  image_gen_apikey: string   // dalle_apikey から変更
-  image_gen_url: string      // dalle_url から変更
-  // // 後方互換性のため古いプロパティも定義（オプショナル）
-  // dalle_apikey?: string
-  // dalle_url?: string
+  // 新しい複数プロバイダー対応
+  image_gen_enabled?: boolean
+  image_gen_providers?: ImageProvider[]
+  image_gen_provider_count?: number
 }
 
 export type FrontendSettings = {

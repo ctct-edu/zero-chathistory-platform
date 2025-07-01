@@ -1,6 +1,8 @@
 import copy
 import json
 import os
+import aiohttp
+import asyncio
 import logging
 import uuid
 from dotenv import load_dotenv
@@ -31,12 +33,59 @@ from backend.utils import (
     format_pf_non_streaming_response,
 )
 
+
+# 画像生成AI設定（複数プロバイダー対応）
+import json
+
 bp = Blueprint("routes", __name__, static_folder="static", template_folder="static")
+load_dotenv()
+
+def parse_image_providers():
+    """環境変数から画像生成プロバイダー設定を解析"""
+    providers = []
+    
+    # 新しい複数プロバイダー設定
+    provider_count = int(os.environ.get("UI_IMAGE_GEN_PROVIDER_COUNT", "1"))
+    for i in range(1, provider_count + 1):
+        url_key = f"UI_IMAGE_GEN_URL_{i}"
+        apikey_key = f"UI_IMAGE_GEN_APIKEY_{i}"
+        name_key = f"UI_IMAGE_GEN_NAME_{i}"
+        
+        url = os.environ.get(url_key)
+        api_key = os.environ.get(apikey_key)
+        name = os.environ.get(name_key, f"provider_{i}")
+
+        if url and api_key:
+            provider = {
+                "name": name,
+                "url": url,
+                "api_key": api_key,
+            }
+            providers.append(provider)
+    return providers
+
+# 画像生成プロバイダー設定
+UI_IMAGE_GEN_PROVIDERS = parse_image_providers()
+UI_IMAGE_GEN_ENABLED = len(UI_IMAGE_GEN_PROVIDERS) > 0
+
+# ラウンドロビン用のカウンター（メモリ内で管理）
+_image_gen_counter = 0
+
+def get_next_image_provider():
+    """ラウンドロビン方式で次のプロバイダーを取得"""
+    global _image_gen_counter
+    if not UI_IMAGE_GEN_PROVIDERS:
+        return None
+    
+    provider = UI_IMAGE_GEN_PROVIDERS[_image_gen_counter % len(UI_IMAGE_GEN_PROVIDERS)]
+    _image_gen_counter += 1
+    
+    return provider
+
 
 # Current minimum Azure OpenAI version supported
 MINIMUM_SUPPORTED_AZURE_OPENAI_PREVIEW_API_VERSION = "2024-02-15-preview"
 
-load_dotenv()
 
 # UI configuration (optional)
 UI_TITLE = os.environ.get("UI_TITLE") or "Contoso"
@@ -273,8 +322,10 @@ frontend_settings = {
         "chat_title": UI_CHAT_TITLE,
         "chat_description": UI_CHAT_DESCRIPTION,
         "show_share_button": UI_SHOW_SHARE_BUTTON,
-        "image_gen_apikey": UI_IMAGE_GEN_APIKEY,
-        "image_gen_url": UI_IMAGE_GEN_URL,
+        # 画像生成設定
+        "image_gen_enabled": UI_IMAGE_GEN_ENABLED,
+        "image_gen_providers": UI_IMAGE_GEN_PROVIDERS,
+        "image_gen_provider_count": len(UI_IMAGE_GEN_PROVIDERS)    
     },
     "sanitize_answer": SANITIZE_ANSWER,
 }
@@ -1392,6 +1443,99 @@ async def generate_title(conversation_messages):
         return title
     except Exception as e:
         return messages[-2]["content"]
+
+
+
+async def call_image_generation_api(provider, request_data):
+    """指定されたプロバイダーで画像生成API呼び出し"""
+    async with aiohttp.ClientSession() as session:
+        headers = {
+            "Content-Type": "application/json",
+            "API-key": provider["api_key"]
+        }
+        
+        # デフォルト設定
+        payload = {
+            "prompt": request_data["prompt"],
+            "n": request_data.get("n", 1),
+            "size": request_data.get("size", "1024x1024"),
+            "output_format": request_data.get("output_format", "png"),
+            "quality": request_data.get("quality", "medium")
+        }
+        
+        try:
+            async with session.post(
+                provider["url"],
+                headers=headers,
+                json=payload,
+                timeout=aiohttp.ClientTimeout(total=60)
+            ) as response:
+                if response.status != 200:
+                    error_text = await response.text()
+                    raise Exception(f"API呼び出し失敗 (Provider: {provider['name']}, Status: {response.status}): {error_text}")
+                
+                result = await response.json()
+                return result
+                
+        except asyncio.TimeoutError:
+            raise Exception(f"API呼び出しタイムアウト (Provider: {provider['name']})")
+        except Exception as e:
+            raise Exception(f"API呼び出しエラー (Provider: {provider['name']}): {str(e)}")
+
+@bp.route("/generate_image", methods=["POST"])
+async def generate_image():
+    """ラウンドロビン方式で画像生成API呼び出し"""
+    try:
+        if not UI_IMAGE_GEN_ENABLED:
+            return jsonify({"error": "画像生成機能が無効です"}), 400
+        
+        # リクエストデータの取得
+        request_data = await request.get_json()
+        if not request_data or not request_data.get("prompt"):
+            return jsonify({"error": "プロンプトが必要です"}), 400
+        
+        # プロバイダーをラウンドロビン方式で選択
+        provider = get_next_image_provider()
+        if not provider:
+            return jsonify({"error": "利用可能なプロバイダーがありません"}), 500
+        
+        # 画像生成リクエスト
+        image_data = await call_image_generation_api(provider, request_data)
+        
+        # プロバイダー情報も含めてレスポンス
+        response_data = {
+            **image_data,
+            "provider_used": provider["name"]
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        logging.exception("画像生成エラー")
+        return jsonify({"error": f"画像生成に失敗しました: {str(e)}"}), 500
+
+@bp.route("/image_providers_status", methods=["GET"])
+async def get_image_providers_status():
+    """画像生成プロバイダーの状態を取得"""
+    try:
+        providers_status = []
+        for provider in UI_IMAGE_GEN_PROVIDERS:
+            status = {
+                "name": provider["name"],
+                "url": provider["url"],
+                "status": "available"  # 実際の状態チェックは必要に応じて実装
+            }
+            providers_status.append(status)
+        
+        return jsonify({
+            "providers": providers_status,
+            "total_count": len(UI_IMAGE_GEN_PROVIDERS),
+            "current_counter": _image_gen_counter % len(UI_IMAGE_GEN_PROVIDERS) if UI_IMAGE_GEN_PROVIDERS else 0
+        })
+        
+    except Exception as e:
+        logging.exception("プロバイダー状態取得エラー")
+        return jsonify({"error": str(e)}), 500
 
 
 app = create_app()
